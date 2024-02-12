@@ -1,0 +1,55 @@
+import pyglet
+import random
+
+# Create a window
+window = pyglet.window.Window(width=1200, height=300, caption='Linear Search Visualization')  # Adjusted window size
+batch = pyglet.graphics.Batch()
+
+# Generate a list with random numbers ensuring 87 is included
+numbers = random.sample(range(1, 100), 19) + [87]  # Reduced number of elements for better visualization
+random.shuffle(numbers)
+
+# Variables to control the animation and search
+current_index = 0
+found_index = -1
+search_complete = False
+
+def linear_search(dt):
+    global current_index, found_index, search_complete
+    if current_index < len(numbers):
+        if numbers[current_index] == 87:
+            found_index = current_index
+            search_complete = True
+        current_index += 1
+    else:
+        search_complete = True
+
+# Schedule the linear search to run every 0.5 seconds
+pyglet.clock.schedule_interval(linear_search, 0.5)
+
+@window.event
+def on_draw():
+    window.clear()
+    box_width = 50  # Adjusted box width for better spacing
+    box_height = 50  # Adjusted box height for better spacing
+    x_offset = (window.width - len(numbers) * box_width) // 2  # Centering the boxes horizontally
+
+    for i, number in enumerate(numbers):
+        # Define the position of each 'box'
+        x = x_offset + i * box_width
+        y = window.height // 2 - box_height // 2  # Center the row vertically
+
+        # Draw the box
+        if i == current_index and not search_complete:
+            color = (0, 255, 255)  # Electric blue for the current box being checked
+        elif i == found_index:
+            color = (148, 0, 211)  # Dark violet if 87 is found
+        else:
+            color = (200, 200, 200)  # Grey for unchecked or passed boxes
+        
+        pyglet.shapes.Rectangle(x, y, box_width, box_height, color=color, batch=batch).draw()
+        # Draw the number inside the box
+        label = pyglet.text.Label(str(number), x=x+box_width//2, y=y+box_height//2, anchor_x='center', anchor_y='center', batch=batch)
+        label.draw()
+
+pyglet.app.run()
